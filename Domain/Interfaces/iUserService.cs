@@ -1,0 +1,12 @@
+﻿using Domain.Models;
+using Infrastructure.Entities;
+
+namespace Domain.Interfaces
+{
+    public interface iUserService
+    {
+        Task<User> getUserByCodeAsync(string pUserCode);
+        Task<string> createNewUserAsync(UserCreateRequest pNewUser);
+        Task<bool> LogIn(string pEmail, string pPassword);
+    }
+}

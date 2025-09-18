@@ -22,12 +22,7 @@ namespace Infrastructure.Repositories
 
         public async Task<User> getUserByUsernameAsync(string pUsername)
         {
-            return await gDbContext.Users.FirstOrDefaultAsync(x => x.UserName == pUsername);
-        }
-
-        public async Task<User> getUserByEmailAsync(string pUserEmail)
-        {
-            return await gDbContext.Users.FirstOrDefaultAsync(x => x.Email == pUserEmail);
+            return await gDbContext.Users.FirstOrDefaultAsync(x => x.UserName == pUsername || x.Email == pUsername);
         }
 
         public async Task createNewUserAsync(User pNewUser)

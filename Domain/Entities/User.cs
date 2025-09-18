@@ -15,6 +15,10 @@ public partial class User
 
     public string Password { get; set; } = null!;
 
+    public string Phone { get; set; } = null!;
+
+    public string Salt { get; set; } = null!;
+
     public virtual ICollection<UserAction> UserActions { get; set; } = new List<UserAction>();
 
     public virtual ICollection<UserTask> UserTasks { get; set; } = new List<UserTask>();

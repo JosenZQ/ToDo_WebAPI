@@ -49,7 +49,13 @@ public partial class TaskListDbContext : Microsoft.EntityFrameworkCore.DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Password)
-                .HasMaxLength(100)
+                .HasMaxLength(130)
+                .IsUnicode(false);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Salt)
+                .HasMaxLength(130)
                 .IsUnicode(false);
             entity.Property(e => e.UserId).ValueGeneratedOnAdd();
             entity.Property(e => e.UserName)

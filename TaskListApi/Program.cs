@@ -2,6 +2,7 @@ using Domain.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddControllers();
 
 /* REGISTRO DE INYECCIONES DE DEPENDENCIAS */
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<iUserService, UserService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
