@@ -14,7 +14,8 @@ builder.Services.AddControllers();
 
 /* REGISTRO DE INYECCIONES DE DEPENDENCIAS */
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<iUserService, UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGlobalServices, GlobalServices>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

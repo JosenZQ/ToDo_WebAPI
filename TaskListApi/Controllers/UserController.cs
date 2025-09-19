@@ -10,9 +10,9 @@ namespace TaskListApi.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        public readonly iUserService gUserService;
+        public readonly IUserService gUserService;
 
-        public UserController(iUserService pUserService)
+        public UserController(IUserService pUserService)
         {
             gUserService = pUserService;
         }

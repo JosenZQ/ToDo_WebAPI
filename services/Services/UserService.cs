@@ -1,46 +1,19 @@
 ﻿using Domain.Interfaces;
 using Domain.Models;
 using Infrastructure.Entities;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Services.Services
 {
-    public class UserService : iUserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository gUserRepo;
+        private readonly IGlobalServices gGlobalServices;
+        private byte[] salt;
 
-        const int keySize = 64;
-        const int iterations = 350000;
-        public byte[] salt;
-        HashAlgorithmName mHashAlgorithm = HashAlgorithmName.SHA512;
-
-        public UserService(IUserRepository pUserRepo)
+        public UserService(IUserRepository pUserRepo, IGlobalServices pGlobalServices)
         {
             gUserRepo = pUserRepo;
-        }
-
-        /* HASH PASSWORD FUNCTION (MADE GLOBALY TO ACCESS IT LATER)*/
-        private String hashPassword(string pPassword, out byte[] salt)
-        {
-            salt = RandomNumberGenerator.GetBytes(keySize);
-
-            var lHash = Rfc2898DeriveBytes.Pbkdf2(
-                Encoding.UTF8.GetBytes(pPassword),
-                salt,
-                iterations,
-                mHashAlgorithm,
-                keySize
-            );
-            return Convert.ToHexString(lHash);
-        }
-
-        /* VERIFY PASSWORD */
-        private bool verifyPassword(string pPassword, string pHashedPass, string pSalt)
-        {
-            byte[] saltBytes = Convert.FromHexString(pSalt);
-            var hashToCompare = Rfc2898DeriveBytes.Pbkdf2(pPassword, saltBytes, iterations, mHashAlgorithm, keySize);
-            return CryptographicOperations.FixedTimeEquals(hashToCompare, Convert.FromHexString(pHashedPass));
+            gGlobalServices = pGlobalServices;
         }
 
         public async Task<User> getUserByCodeAsync(string pUserCode)
@@ -60,7 +33,7 @@ namespace Services.Services
                     string lNewCode;
                     while (true)
                     {
-                        lNewCode = GlobalServices.createControlCode();
+                        lNewCode = gGlobalServices.createControlCode();
                         User lUser = await gUserRepo.getUserByCodeAsync(lNewCode);
                         if (lUser == null)
                         {
@@ -71,7 +44,7 @@ namespace Services.Services
                     //VERIFY BOTH PASSWORDS:
                     if (pNewUser.Password == pNewUser.PasswordConfirm)
                     {
-                        var lHashedPass = hashPassword(pNewUser.PasswordConfirm, out salt);
+                        var lHashedPass = gGlobalServices.hashPassword(pNewUser.PasswordConfirm, out salt);
                         var lSalt = Convert.ToHexString(salt);
 
                         User _NewUser = new User
@@ -112,7 +85,7 @@ namespace Services.Services
                     User lUser = await gUserRepo.getUserByUsernameAsync(pEmail);
                     if (lUser != null) 
                     {
-                        return verifyPassword(pPassword, lUser.Password, lUser.Salt);
+                        return gGlobalServices.verifyPassword(pPassword, lUser.Password, lUser.Salt);
                     }
                     else
                     {
@@ -129,22 +102,5 @@ namespace Services.Services
                 throw lEx;
             }
         }
-
-        //public async Task<string> updateUserName(string pUserCode, string pNewUserName)
-        //{
-        //    try
-        //    {
-        //        var lUserConfirm = gUserRepo.getUserByCodeAsync(pUserCode);
-
-
-        //    }
-        //    catch (Exception lEx)
-        //    {
-        //        return $"Error: {lEx.Message}";
-        //    }
-
-        //}
-
-
     }
 }
