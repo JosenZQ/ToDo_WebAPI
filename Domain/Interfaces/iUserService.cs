@@ -7,6 +7,5 @@ namespace Domain.Interfaces
     {
         Task<User> getUserByCodeAsync(string pUserCode);
         Task<string> createNewUserAsync(UserCreateRequest pNewUser);
-        Task<bool> LogIn(string pEmail, string pPassword);
     }
 }

@@ -1,12 +1,14 @@
 ﻿using Domain.Interfaces;
 using Domain.Models;
 using Infrastructure.Entities;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TaskListApi.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -27,12 +29,6 @@ namespace TaskListApi.Controllers
         public async Task<string> CreateNewUser(UserCreateRequest pNewUser)
         {
             return await gUserService.createNewUserAsync(pNewUser);
-        }
-
-        [HttpGet("LogIn")]
-        public async Task<bool> LogIn(string pEmail, string pPassword)
-        {
-            return await gUserService.LogIn(pEmail, pPassword);
-        }
+        }        
     }
 }

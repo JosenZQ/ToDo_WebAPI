@@ -75,32 +75,5 @@ namespace Services.Services
                 return $"{lEx.Message}";
             }
         }
-
-        public async Task<bool> LogIn(string pEmail, string pPassword)
-        {
-            try
-            {
-                if (pEmail != "" && pPassword != "")
-                {
-                    User lUser = await gUserRepo.getUserByUsernameAsync(pEmail);
-                    if (lUser != null) 
-                    {
-                        return gGlobalServices.verifyPassword(pPassword, lUser.Password, lUser.Salt);
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception lEx)
-            {
-                throw lEx;
-            }
-        }
     }
 }
