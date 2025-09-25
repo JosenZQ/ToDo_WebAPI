@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces;
+using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,10 +17,16 @@ namespace TaskListApi.Controllers
             gAuthService = pAuthService;
         }
 
-        [HttpGet("LogIn")]
+        [HttpPost("LogIn")]
         public async Task<string> LogIn(string pEmail, string pPassword)
         {
             return await gAuthService.LogIn(pEmail, pPassword);
+        }
+
+        [HttpPost("Register")]
+        public async Task<string> Register(UserCreateRequest pNewUser)
+        {
+            return await gAuthService.CreateNewUser(pNewUser);
         }
 
     }

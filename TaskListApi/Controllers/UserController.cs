@@ -1,5 +1,5 @@
-﻿using Domain.Interfaces;
-using Domain.Models;
+﻿using Domain.DTOs;
+using Domain.Interfaces;
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -25,10 +25,11 @@ namespace TaskListApi.Controllers
             return await gUserService.getUserByCodeAsync(pUserCode);
         }
 
-        [HttpPost("CreateNewUser")]
-        public async Task<string> CreateNewUser(UserCreateRequest pNewUser)
+        [HttpPost("ChangePassword")]
+        public async Task<string> ChangePassword(PassChangeRequest pRequest)
         {
-            return await gUserService.createNewUserAsync(pNewUser);
-        }        
+            return await gUserService.ChangePassword(pRequest);
+        }
+
     }
 }

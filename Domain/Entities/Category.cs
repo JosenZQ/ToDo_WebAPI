@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Infrastructure.Entities;
+﻿namespace Infrastructure.Entities;
 
 public partial class Category
 {

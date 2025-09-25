@@ -39,6 +39,7 @@ namespace Infrastructure.Repositories
                 lExistingUser.UserName = pUser.UserName;
                 lExistingUser.Email = pUser.Email;
                 lExistingUser.Password = pUser.Password;
+                lExistingUser.Salt = pUser.Salt;
 
                 await gDbContext.SaveChangesAsync();
             }

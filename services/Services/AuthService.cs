@@ -1,4 +1,6 @@
-﻿using Domain.Interfaces;
+﻿using Domain.DTOs;
+using Domain.Interfaces;
+using Domain.Models;
 using Infrastructure.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +15,7 @@ namespace Services.Services
         private readonly IUserRepository gUserRepo;
         private readonly IGlobalServices gGlobalServices;
         private readonly IConfiguration gConfig;
+        private byte[] salt;
 
         public AuthService(IUserRepository pUserRepo, IGlobalServices pGlobalServices, IConfiguration pConfig)
         {
@@ -91,5 +94,61 @@ namespace Services.Services
                 throw lEx;
             }
         }
+
+        public async Task<string> CreateNewUser(UserCreateRequest pNewUser)
+        {
+            try
+            {
+                //VERIFY THE EMAIL ISN´T ALREADY ON DB:
+                User lUserConfirm = await gUserRepo.getUserByUsernameAsync(pNewUser.Email);
+                if (lUserConfirm == null)
+                {
+                    //GENERATE AN UNIQUE CODE FOR EACH NEW USER:
+                    string lNewCode;
+                    while (true)
+                    {
+                        lNewCode = gGlobalServices.createControlCode();
+                        User lUser = await gUserRepo.getUserByCodeAsync(lNewCode);
+                        if (lUser == null)
+                        {
+                            break;
+                        }
+                    }
+
+                    //VERIFY BOTH PASSWORDS:
+                    if (pNewUser.Password == pNewUser.PasswordConfirm)
+                    {
+                        var lHashedPass = gGlobalServices.hashPassword(pNewUser.PasswordConfirm!, out salt);
+                        var lSalt = Convert.ToHexString(salt);
+
+                        User _NewUser = new User
+                        {
+                            UserCode = lNewCode,
+                            UserName = pNewUser.UserName,
+                            Email = pNewUser.Email,
+                            Password = lHashedPass,
+                            Phone = pNewUser.Phone,
+                            Salt = lSalt
+                        };
+                        await gUserRepo.createNewUserAsync(_NewUser);
+                        return "Usuario registrado correctamente";
+                    }
+                    else
+                    {
+                        return "Las contraseñas no coinciden";
+                    }
+
+                }
+                else
+                {
+                    return "Correo ya registrado en el sistema";
+                }
+            }
+            catch (Exception lEx)
+            {
+                return $"{lEx.Message}";
+            }
+        }
+
     }
 }
