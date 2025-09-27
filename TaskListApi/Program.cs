@@ -18,6 +18,8 @@ builder.Services.AddControllers();
 /* REGISTRO DE INYECCIONES DE DEPENDENCIAS */
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IUserActionRepository, UserActionsRepository>();
+builder.Services.AddScoped<IUserTaskRepository, UserTaskRepository>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();

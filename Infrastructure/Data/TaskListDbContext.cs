@@ -74,6 +74,9 @@ public partial class TaskListDbContext : Microsoft.EntityFrameworkCore.DbContext
             entity.Property(e => e.UserCode)
                 .HasMaxLength(4)
                 .IsUnicode(false);
+            entity.Property(e => e.ActionCode)
+                .HasMaxLength(4)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.UserCodeNavigation).WithMany(p => p.UserActions)
                 .HasForeignKey(d => d.UserCode)
