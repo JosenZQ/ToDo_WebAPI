@@ -16,7 +16,7 @@ namespace Services.Services
             gGlobalServices = pGlobalServices;
         }
 
-        public async Task<User> getUserByCodeAsync(string pUserCode)
+        public async Task<User> GetUserByCodeAsync(string pUserCode)
         {
             return await gUserRepo.getUserByCodeAsync(pUserCode);
         }

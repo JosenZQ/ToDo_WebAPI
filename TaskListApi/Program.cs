@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Services.Interfaces;
 using Services.Services;
 using System.Text;
 
@@ -15,7 +16,7 @@ builder.Services.AddDbContext<TaskListDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
 
-/* REGISTRO DE INYECCIONES DE DEPENDENCIAS */
+/* DEPENDENCY INJECTION REGISTERS */
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUserActionRepository, UserActionsRepository>();
@@ -23,6 +24,9 @@ builder.Services.AddScoped<IUserTaskRepository, UserTaskRepository>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IUserActionService, UserActionService>();
+builder.Services.AddScoped<IUserTaskService, UserTaskService>();
+
 builder.Services.AddScoped<IGlobalServices, GlobalServices>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 

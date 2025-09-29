@@ -22,7 +22,7 @@ namespace TaskListApi.Controllers
         [HttpGet("GetUserByCode")]
         public async Task<User> GetUserByCode(string pUserCode)
         {
-            return await gUserService.getUserByCodeAsync(pUserCode);
+            return await gUserService.GetUserByCodeAsync(pUserCode);
         }
 
         [HttpPost("ChangePassword")]
