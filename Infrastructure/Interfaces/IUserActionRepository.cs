@@ -1,6 +1,6 @@
 ﻿using Infrastructure.Entities;
 
-namespace Domain.Interfaces
+namespace Infrastructure.Interfaces
 {
     public interface IUserActionRepository
     {

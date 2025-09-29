@@ -1,7 +1,7 @@
-﻿using Domain.Interfaces;
-using Domain.Models;
+﻿using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Interfaces;
 
 namespace TaskListApi.Controllers
 {

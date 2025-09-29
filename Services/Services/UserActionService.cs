@@ -1,6 +1,6 @@
 ﻿using Domain.DTOs;
-using Domain.Interfaces;
 using Infrastructure.Entities;
+using Infrastructure.Interfaces;
 using Services.Interfaces;
 
 namespace Services.Services

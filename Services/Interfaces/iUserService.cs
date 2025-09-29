@@ -1,8 +1,7 @@
 ﻿using Domain.DTOs;
-using Domain.Models;
 using Infrastructure.Entities;
 
-namespace Domain.Interfaces
+namespace Services.Interfaces
 {
     public interface IUserService
     {

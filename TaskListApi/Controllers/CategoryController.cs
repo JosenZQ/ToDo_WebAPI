@@ -1,7 +1,6 @@
 ﻿using Domain.DTOs;
-using Domain.Interfaces;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Services.Interfaces;
 
 namespace TaskListApi.Controllers
 {

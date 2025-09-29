@@ -1,9 +1,9 @@
 ﻿using Domain.DTOs;
-using Domain.Interfaces;
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Interfaces;
 
 namespace TaskListApi.Controllers
 {

@@ -1,6 +1,6 @@
 ﻿using Domain.DTOs;
 
-namespace Domain.Interfaces
+namespace Services.Interfaces
 {
     public interface ICategoryService
     {

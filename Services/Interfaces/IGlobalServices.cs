@@ -1,4 +1,4 @@
-﻿namespace Domain.Interfaces
+﻿namespace Services.Interfaces
 {
     public interface IGlobalServices
     {

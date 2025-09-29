@@ -1,9 +1,9 @@
-﻿using Domain.DTOs;
-using Domain.Interfaces;
-using Domain.Models;
+﻿using Domain.Models;
 using Infrastructure.Entities;
+using Infrastructure.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
