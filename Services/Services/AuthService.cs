@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.DTOs;
+using Domain.Models;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -14,14 +15,19 @@ namespace Services.Services
     {
         private readonly IUserRepository gUserRepo;
         private readonly IGlobalServices gGlobalServices;
+        private readonly IEmailService gEmailService;
+        private readonly IEmailContentService gEmailContentService;
         private readonly IConfiguration gConfig;
         private byte[] salt;
 
-        public AuthService(IUserRepository pUserRepo, IGlobalServices pGlobalServices, IConfiguration pConfig)
+        public AuthService(IUserRepository pUserRepo, IGlobalServices pGlobalServices,
+            IConfiguration pConfig, IEmailService pEmailService, IEmailContentService pEmailContentService)
         {
             gUserRepo = pUserRepo;
             gGlobalServices = pGlobalServices;
             gConfig = pConfig;
+            gEmailService = pEmailService;
+            gEmailContentService = pEmailContentService;
         }
 
         public string generateJWT(User pUser)
@@ -130,7 +136,22 @@ namespace Services.Services
                             Phone = pNewUser.Phone,
                             Salt = lSalt
                         };
+                        GeoIpResponse lLocationDetails = await gGlobalServices.GetLocationByIpAddress(pNewUser.IpAddress);
+
+                        RegisterEmailModel lModel = new RegisterEmailModel
+                        {
+                            UserName = _NewUser.UserName,
+                            IPAddress = pNewUser.IpAddress,
+                            Country = lLocationDetails.country_name,
+                            State = lLocationDetails.state_prov,
+                            City = lLocationDetails.city,
+                            RegisterDate = DateTime.Now.ToString(),
+                            TimeZoneName = lLocationDetails.TimeZone.Name,
+                            TimeZoneCurrentTime = lLocationDetails.TimeZone.CurrentTime
+                        };
+                        string lEmailBodyContent = gEmailContentService.GetRegisterEmailBodyContent(lModel);
                         await gUserRepo.createNewUserAsync(_NewUser);
+                        gEmailService.SendEmail(_NewUser.Email, "Notificación de Nuevo Registro", lEmailBodyContent);
                         return "Usuario registrado correctamente";
                     }
                     else
@@ -149,6 +170,5 @@ namespace Services.Services
                 return $"{lEx.Message}";
             }
         }
-
     }
 }

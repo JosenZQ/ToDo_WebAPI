@@ -1,6 +1,11 @@
-﻿using Services.Interfaces;
+﻿using Domain.DTOs;
+using Microsoft.Extensions.Configuration;
+using Razor.Templating.Core;
+using Services.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using System.Net.Http;
 
 namespace Services.Services
 {
@@ -10,6 +15,14 @@ namespace Services.Services
         const int iterations = 350000;
         public static byte[] salt;
         HashAlgorithmName mHashAlgorithm = HashAlgorithmName.SHA512;
+        private readonly HttpClient gHttpClient;
+        private readonly IConfiguration gConfig;
+
+        public GlobalServices(HttpClient pHttpClient, IConfiguration pConfig)
+        {
+            gHttpClient = pHttpClient;
+            gConfig = pConfig;
+        }
 
         public String createControlCode()
         {
@@ -39,5 +52,28 @@ namespace Services.Services
             var hashToCompare = Rfc2898DeriveBytes.Pbkdf2(pPassword, saltBytes, iterations, mHashAlgorithm, keySize);
             return CryptographicOperations.FixedTimeEquals(hashToCompare, Convert.FromHexString(pHashedPass));
         }
+
+        public async Task<GeoIpResponse> GetLocationByIpAddress(string pIpAddress)
+        {
+            try
+            {
+                string lApiKey = gConfig.GetSection("IpGeolocation:ApiKey").Value;
+                var url = $"https://api.ipgeolocation.io/ipgeo?apiKey={lApiKey}&ip={pIpAddress}";
+
+                var response = await gHttpClient.GetAsync(url);
+
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                var content = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(content);
+                return JsonSerializer.Deserialize<GeoIpResponse>(content);
+            }
+            catch(Exception lEx)
+            {
+                throw lEx;
+            }
+        } 
+
     }
 }

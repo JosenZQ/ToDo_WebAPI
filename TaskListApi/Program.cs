@@ -1,6 +1,6 @@
 using Infrastructure.Data;
-using Infrastructure.Repositories;
 using Infrastructure.Interfaces;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -26,9 +26,13 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserActionService, UserActionService>();
 builder.Services.AddScoped<IUserTaskService, UserTaskService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddScoped<IGlobalServices, GlobalServices>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailContentService, EmailContentService>();
+builder.Services.AddHttpClient();
+
 
 /* JWT AUTHENTICATION IMPLEMENTATION */
 builder.Services.AddAuthentication(config =>
