@@ -18,6 +18,7 @@ namespace Services.Services
         private readonly IEmailService gEmailService;
         private readonly IEmailContentService gEmailContentService;
         private readonly IConfiguration gConfig;
+        private static List<UserLocalVerificationCode> gVerificationCodes = new List<UserLocalVerificationCode>();
         private byte[] salt;
 
         public AuthService(IUserRepository pUserRepo, IGlobalServices pGlobalServices,
@@ -170,5 +171,91 @@ namespace Services.Services
                 return $"{lEx.Message}";
             }
         }
+
+        public async Task<string> RequestVerificationCode(VerificationCodeRequest pRequest)
+        {
+            try
+            {
+                User lUserFound = await gUserRepo.getUserByUsernameAsync(pRequest.UserName);
+                if (lUserFound != null)
+                {
+                    string lVerificationCode = gGlobalServices.createVerificationCode();
+                    UserLocalVerificationCode lUserVerificationCode = new UserLocalVerificationCode
+                    {
+                        UserCode = lUserFound.UserCode,
+                        VerificationCode = lVerificationCode,
+                        GenerationDateTime = DateTime.Now,
+                        MinutesLifeTime = 5
+                    };
+                    gVerificationCodes.Add(lUserVerificationCode);
+                    VerificationCodeEmailModel lModel = new VerificationCodeEmailModel
+                    {
+                        UserName = lUserFound.UserName,
+                        VerificationCode = lVerificationCode,
+                        MinutesLifeTime = lUserVerificationCode.MinutesLifeTime.ToString()
+                    };
+                    string lEmailBodyContent = gEmailContentService.GetVerificationCodeEmailBodyContent(lModel);
+                    gEmailService.SendEmail(lUserFound.Email, "Codigo de verificación", lEmailBodyContent);
+                    return lUserFound.UserCode;
+                }
+                else
+                {
+                    return "Nombre de usuario o correo incorrecto";
+                }
+            }
+            catch(Exception lEx)
+            {
+                throw lEx;
+            }
+        }
+
+        public async Task<string> VerifyCode(VerifyCodeRequest pRequest)
+        {
+            try
+            {
+                if(pRequest != null)
+                {
+                    UserLocalVerificationCode lUserVerificationCode = new UserLocalVerificationCode();
+                    foreach (var item in gVerificationCodes)
+                    {
+                        if (item.UserCode == pRequest.UserCode
+                            && item.VerificationCode == pRequest.VerificationCode)
+                        {
+                            lUserVerificationCode = item;                            
+                            break;
+                        }
+                    }
+
+                    double lCodeLifeTime = Convert.ToDouble(lUserVerificationCode.MinutesLifeTime);
+                    bool lCodeLifeTimeVerification = gGlobalServices.VerifyCodeLifeTime(lUserVerificationCode.GenerationDateTime, lCodeLifeTime);
+                    if (lCodeLifeTimeVerification == true)
+                    {
+                        if (lUserVerificationCode.VerificationCode == pRequest.VerificationCode)
+                        {
+                            gVerificationCodes.Remove(lUserVerificationCode);
+                            return "Código verificado";
+                        }
+                        else
+                        {
+                            return "Código incorrecto";
+                        }
+                    }
+                    else
+                    {
+                        return "El código de verificación ha expirado";
+                    }
+
+                }
+                else
+                {
+                    return "Parámetros de consulta inválidos";
+                }
+            }
+            catch (Exception lEx) 
+            {
+                throw lEx;
+            }
+        }
+
     }
 }

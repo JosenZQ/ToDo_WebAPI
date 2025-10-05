@@ -22,7 +22,7 @@ namespace Services.Services
             return await gUserRepo.getUserByCodeAsync(pUserCode);
         }
 
-        public async Task<string> ChangePassword(PassChangeRequest pRequest)
+        public async Task<string> ChangePassword(PassResetRequest pRequest)
         {
             try
             {

@@ -26,7 +26,7 @@ namespace TaskListApi.Controllers
         }
 
         [HttpPost("ChangePassword")]
-        public async Task<string> ChangePassword(PassChangeRequest pRequest)
+        public async Task<string> ChangePassword(PassResetRequest pRequest)
         {
             return await gUserService.ChangePassword(pRequest);
         }

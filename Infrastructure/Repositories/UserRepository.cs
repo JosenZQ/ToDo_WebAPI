@@ -1,8 +1,7 @@
-﻿using Infrastructure.Interfaces;
-using Infrastructure.Data;
+﻿using Infrastructure.Data;
 using Infrastructure.Entities;
+using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
 namespace Infrastructure.Repositories
 {

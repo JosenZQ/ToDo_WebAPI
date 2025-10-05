@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.DTOs;
+using Domain.Models;
 
 namespace Services.Interfaces
 {
@@ -6,5 +7,7 @@ namespace Services.Interfaces
     {
         Task<string> LogIn(string pEmail, string pPassword);
         Task<string> CreateNewUser(UserCreateRequest pNewUser);
+        Task<string> RequestVerificationCode(VerificationCodeRequest pRequest);
+        Task<string> VerifyCode(VerifyCodeRequest pRequest);
     }
 }

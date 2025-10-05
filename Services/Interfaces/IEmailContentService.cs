@@ -5,5 +5,6 @@ namespace Services.Interfaces
     public interface IEmailContentService
     {
         string GetRegisterEmailBodyContent(RegisterEmailModel pModel);
+        string GetVerificationCodeEmailBodyContent(VerificationCodeEmailModel pModel);
     }
 }

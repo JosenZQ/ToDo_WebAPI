@@ -19,5 +19,18 @@ namespace Services.Services
                 throw lEx;
             }
         }
+
+        public string GetVerificationCodeEmailBodyContent(VerificationCodeEmailModel pModel)
+        {
+            try
+            {
+                string lEmailBody = "<!DOCTYPE html> <html> <head> <meta charset=\"utf-8\" /> <style> body { font-family: Arial; background-color: #f2f2f2; padding: 30px; } .header{ display: flex; align-items: center; flex-direction: column; background-color: white; border-radius: 10px; padding: 5px; margin-bottom: 30px; border: #03045e 2px solid; } .box { display: flex; flex-direction: column; align-items: center; border: #03045e 2px solid; background-color: white; padding: 20px; border-radius: 8px; } .CodeContainer{ border: #03045e 2px solid; padding: 5px; border-radius: 8px; } .container{ display: flex; flex-direction: row; } .container strong, p{ margin-left: 10px; margin-top: 15px; } </style> </head> <body> <div class=\"header\"> <h2>Estimado(a)"+ pModel.UserName +"</h2> <p> Se ha solicitado un nuevo código de verificación </p> </div> <div class=\"box\"> <p> <strong>Código de verificación</strong> <div class=\"CodeContainer\"> <p>"+ pModel.VerificationCode + "</p> </div> <br> <p>Valido unicamente por <strong>"+ pModel.MinutesLifeTime +"</strong> minutos</p> </p> </div> </body> </html>";
+                return lEmailBody;
+            }
+            catch (Exception lEx)
+            {
+                throw lEx;
+            }
+        }
     }
 }

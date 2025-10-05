@@ -6,6 +6,6 @@ namespace Services.Interfaces
     public interface IUserService
     {
         Task<User> GetUserByCodeAsync(string pUserCode);
-        Task<string> ChangePassword(PassChangeRequest pRequest);
+        Task<string> ChangePassword(PassResetRequest pRequest);
     }
 }

@@ -1,18 +1,16 @@
 ﻿using Domain.DTOs;
 using Microsoft.Extensions.Configuration;
-using Razor.Templating.Core;
 using Services.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Net.Http;
 
 namespace Services.Services
 {
     public class GlobalServices : IGlobalServices
     {
         const int keySize = 64;
-        const int iterations = 350000;
+        const int iterations = 350000;        
         public static byte[] salt;
         HashAlgorithmName mHashAlgorithm = HashAlgorithmName.SHA512;
         private readonly HttpClient gHttpClient;
@@ -30,6 +28,20 @@ namespace Services.Services
             int preCode = random.Next(1000, 9999);
             string lAnsObj = preCode.ToString();
             return lAnsObj;
+        }
+
+        public String createVerificationCode()
+        {
+            Random random = new Random();
+            int preCode = random.Next(100000, 999999);
+            string lAnsObj = preCode.ToString();
+            return lAnsObj;
+        }
+
+        public bool VerifyCodeLifeTime(DateTime pCreationTime, double pMinutesLifeTime)
+        {
+            double elapsedMinutes = (DateTime.Now - pCreationTime).TotalMinutes;
+            return pMinutesLifeTime >= elapsedMinutes;
         }
 
         public String hashPassword(string pPassword, out byte[] salt)
@@ -73,7 +85,6 @@ namespace Services.Services
             {
                 throw lEx;
             }
-        } 
-
+        }
     }
 }
