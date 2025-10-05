@@ -65,17 +65,17 @@ namespace Services.Services
             }
         }
 
-        public async Task<string> LogIn(string pEmail, string pPassword)
+        public async Task<string> LogIn(LogInRequest pRequest)
         {
             try
             {
                 string lErrorMessage = "Usuario y/o contraseña incorrectos";
-                if (pEmail != "" && pPassword != "")
+                if (pRequest.UserName != "" && pRequest.Password != "")
                 {
-                    User lUser = await gUserRepo.getUserByUsernameAsync(pEmail);
+                    User lUser = await gUserRepo.getUserByUsernameAsync(pRequest.UserName);
                     if (lUser != null)
                     {
-                        bool lVerify = gGlobalServices.verifyPassword(pPassword, lUser.Password, lUser.Salt);
+                        bool lVerify = gGlobalServices.verifyPassword(pRequest.Password, lUser.Password, lUser.Salt);
                         if (lVerify == true)
                         {
                             string lApiToken = generateJWT(lUser);
@@ -252,6 +252,38 @@ namespace Services.Services
                 }
             }
             catch (Exception lEx) 
+            {
+                throw lEx;
+            }
+        }
+
+        public async Task<string> PasswordRecovery(PassResetRequest pRequest)
+        {
+            try
+            {
+                if(pRequest != null)
+                {
+                    User lUserFound = await gUserRepo.getUserByCodeAsync(pRequest.UserCode);
+                    if (pRequest.Password == pRequest.PassConfirm)
+                    {
+                        string lHashPass = gGlobalServices.hashPassword(pRequest.PassConfirm, out salt);
+                        var lSalt = Convert.ToHexString(salt);
+                        lUserFound.Password = lHashPass;
+                        lUserFound.Salt = lSalt;
+                        await gUserRepo.updateUserData(lUserFound);
+                        return "Contraseña actualizada correctamente";
+                    }
+                    else
+                    {
+                        return "Las contraseñas no coinciden";
+                    }
+                }
+                else
+                {
+                    return "Datos de solicitud inválidos";
+                }
+            }
+            catch (Exception lEx)
             {
                 throw lEx;
             }

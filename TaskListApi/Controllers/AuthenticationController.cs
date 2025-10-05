@@ -1,6 +1,7 @@
 ﻿using Domain.DTOs;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -19,9 +20,9 @@ namespace TaskListApi.Controllers
         }
 
         [HttpPost("LogIn")]
-        public async Task<string> LogIn(string pEmail, string pPassword)
+        public async Task<string> LogIn(LogInRequest pRequest)
         {
-            return await gAuthService.LogIn(pEmail, pPassword);
+            return await gAuthService.LogIn(pRequest);
         }
 
         [HttpPost("Register")]
@@ -40,6 +41,12 @@ namespace TaskListApi.Controllers
         public async Task<string> VerifyCode(VerifyCodeRequest pRequest)
         {
             return await gAuthService.VerifyCode(pRequest);
+        }
+
+        [HttpPost("RecoveryPassword")]
+        public async Task<string> RecoveryPassword(PassResetRequest pRequest)
+        {
+            return await gAuthService.PasswordRecovery(pRequest);
         }
 
     }
