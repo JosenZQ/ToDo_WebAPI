@@ -1,7 +1,6 @@
 ﻿using Domain.DTOs;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -48,6 +47,5 @@ namespace TaskListApi.Controllers
         {
             return await gAuthService.PasswordRecovery(pRequest);
         }
-
     }
 }
