@@ -19,6 +19,7 @@ namespace Services.Services
         private readonly IEmailContentService gEmailContentService;
         private readonly IConfiguration gConfig;
         private static List<UserLocalVerificationCode> gVerificationCodes = new List<UserLocalVerificationCode>();
+        private static List<UserWithVerificationCode> gUsersWithCodeList = new List<UserWithVerificationCode>();
         private byte[] salt;
 
         public AuthService(IUserRepository pUserRepo, IGlobalServices pGlobalServices,
@@ -64,6 +65,44 @@ namespace Services.Services
                 throw lEx;
             }
         }
+
+        private UserWithVerificationCode VerifyExistingUser(string pUserCode)
+        {
+            UserWithVerificationCode lAnsObj = new UserWithVerificationCode();
+            foreach (var item in gUsersWithCodeList)
+            {
+                if(item.UserCode == pUserCode)
+                {
+                    lAnsObj = item;
+                    break;
+                }
+            }
+            return lAnsObj;
+        }
+
+        private void ChangeVerifiedUserStatus(string pUserCode)
+        {
+            foreach (var item in gUsersWithCodeList)
+            {
+                if (item.UserCode == pUserCode)
+                {
+                    item.Verified = true;
+                    break;
+                }
+            }
+        }
+
+        private void DeleteVerificationCodes(string pUserCode)
+        {
+            foreach(var item in gVerificationCodes)
+            {
+                if(item.UserCode == pUserCode)
+                {
+                    gVerificationCodes.Remove(item);
+                    break;
+                }
+            }
+        } 
 
         public async Task<string> LogIn(LogInRequest pRequest)
         {
@@ -176,9 +215,23 @@ namespace Services.Services
         {
             try
             {
+                /* Verify if the user who request a verification code already exists on db */
                 User lUserFound = await gUserRepo.getUserByUsernameAsync(pRequest.UserName);
                 if (lUserFound != null)
                 {
+                    /* If exists, make a register that they requested a code and isn´t verified yet */
+                    if (VerifyExistingUser(lUserFound.UserCode) != null)
+                    {
+                        UserWithVerificationCode lUserToVerify = new UserWithVerificationCode
+                        {
+                            UserCode = lUserFound.UserCode,
+                            Verified = false
+                        };
+                        gUsersWithCodeList.Add(lUserToVerify);
+                    }
+
+                    /* Create a new verification code and give it to the user with the security parameters 
+                     of the code and save it for verification */
                     string lVerificationCode = gGlobalServices.createVerificationCode();
                     UserLocalVerificationCode lUserVerificationCode = new UserLocalVerificationCode
                     {
@@ -188,6 +241,8 @@ namespace Services.Services
                         MinutesLifeTime = 5
                     };
                     gVerificationCodes.Add(lUserVerificationCode);
+
+                    /* Make the verification model for the verification code email for the user */
                     VerificationCodeEmailModel lModel = new VerificationCodeEmailModel
                     {
                         UserName = lUserFound.UserName,
@@ -232,7 +287,8 @@ namespace Services.Services
                     {
                         if (lUserVerificationCode.VerificationCode == pRequest.VerificationCode)
                         {
-                            gVerificationCodes.Remove(lUserVerificationCode);
+                            DeleteVerificationCodes(pRequest.UserCode);
+                            ChangeVerifiedUserStatus(pRequest.UserCode);
                             return "Código verificado";
                         }
                         else
@@ -263,19 +319,28 @@ namespace Services.Services
             {
                 if(pRequest != null)
                 {
-                    User lUserFound = await gUserRepo.getUserByCodeAsync(pRequest.UserCode);
-                    if (pRequest.Password == pRequest.PassConfirm)
+                    var lUserWithCode = VerifyExistingUser(pRequest.UserCode);
+                    if (lUserWithCode != null && lUserWithCode.Verified != false)
                     {
-                        string lHashPass = gGlobalServices.hashPassword(pRequest.PassConfirm, out salt);
-                        var lSalt = Convert.ToHexString(salt);
-                        lUserFound.Password = lHashPass;
-                        lUserFound.Salt = lSalt;
-                        await gUserRepo.updateUserData(lUserFound);
-                        return "Contraseña actualizada correctamente";
+                        User lUserFound = await gUserRepo.getUserByCodeAsync(pRequest.UserCode);
+                        if (pRequest.Password == pRequest.PassConfirm)
+                        {
+                            string lHashPass = gGlobalServices.hashPassword(pRequest.PassConfirm, out salt);
+                            var lSalt = Convert.ToHexString(salt);
+                            lUserFound.Password = lHashPass;
+                            lUserFound.Salt = lSalt;
+                            await gUserRepo.updateUserData(lUserFound);
+                            gUsersWithCodeList.Remove(lUserWithCode);
+                            return "Contraseña actualizada correctamente";
+                        }
+                        else
+                        {
+                            return "Las contraseñas no coinciden";
+                        }
                     }
                     else
                     {
-                        return "Las contraseñas no coinciden";
+                        return "Se necesita primero estar verificado";
                     }
                 }
                 else
