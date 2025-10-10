@@ -145,64 +145,73 @@ namespace Services.Services
         {
             try
             {
-                //VERIFY THE EMAIL ISN´T ALREADY ON DB:
-                User lUserConfirm = await gUserRepo.getUserByUsernameAsync(pNewUser.Email);
-                if (lUserConfirm == null)
+                //VERIFY THE USERNAME ISN´T ALREADY ON DB:
+                User lUserWithUserName = await gUserRepo.getUserByUsernameAsync(pNewUser.UserName);
+                if(lUserWithUserName == null)
                 {
-                    //GENERATE AN UNIQUE CODE FOR EACH NEW USER:
-                    string lNewCode;
-                    while (true)
+                    //VERIFY THE EMAIL ISN´T ALREADY ON DB:
+                    User lUserWithEmail = await gUserRepo.getUserByEmailAsync(pNewUser.Email);
+                    if (lUserWithEmail == null)
                     {
-                        lNewCode = gGlobalServices.createControlCode();
-                        User lUser = await gUserRepo.getUserByCodeAsync(lNewCode);
-                        if (lUser == null)
+                        //GENERATE AN UNIQUE CODE FOR EACH NEW USER:
+                        string lNewCode;
+                        while (true)
                         {
-                            break;
+                            lNewCode = gGlobalServices.createControlCode();
+                            User lUser = await gUserRepo.getUserByCodeAsync(lNewCode);
+                            if (lUser == null)
+                            {
+                                break;
+                            }
                         }
-                    }
 
-                    //VERIFY BOTH PASSWORDS:
-                    if (pNewUser.Password == pNewUser.PasswordConfirm)
-                    {
-                        var lHashedPass = gGlobalServices.hashPassword(pNewUser.PasswordConfirm!, out salt);
-                        var lSalt = Convert.ToHexString(salt);
-
-                        User _NewUser = new User
+                        //VERIFY BOTH PASSWORDS:
+                        if (pNewUser.Password == pNewUser.PasswordConfirm)
                         {
-                            UserCode = lNewCode,
-                            UserName = pNewUser.UserName,
-                            Email = pNewUser.Email,
-                            Password = lHashedPass,
-                            Phone = pNewUser.Phone,
-                            Salt = lSalt
-                        };
-                        GeoIpResponse lLocationDetails = await gGlobalServices.GetLocationByIpAddress(pNewUser.IpAddress);
+                            var lHashedPass = gGlobalServices.hashPassword(pNewUser.PasswordConfirm!, out salt);
+                            var lSalt = Convert.ToHexString(salt);
 
-                        RegisterEmailModel lModel = new RegisterEmailModel
+                            User _NewUser = new User
+                            {
+                                UserCode = lNewCode,
+                                UserName = pNewUser.UserName,
+                                Email = pNewUser.Email,
+                                Password = lHashedPass,
+                                Phone = pNewUser.Phone,
+                                Salt = lSalt
+                            };
+                            GeoIpResponse lLocationDetails = await gGlobalServices.GetLocationByIpAddress(pNewUser.IpAddress);
+
+                            RegisterEmailModel lModel = new RegisterEmailModel
+                            {
+                                UserName = _NewUser.UserName,
+                                IPAddress = pNewUser.IpAddress,
+                                Country = lLocationDetails.country_name,
+                                State = lLocationDetails.state_prov,
+                                City = lLocationDetails.city,
+                                RegisterDate = DateTime.Now.ToString(),
+                                TimeZoneName = lLocationDetails.TimeZone.Name,
+                                TimeZoneCurrentTime = lLocationDetails.TimeZone.CurrentTime
+                            };
+                            string lEmailBodyContent = gEmailContentService.GetRegisterEmailBodyContent(lModel);
+                            await gUserRepo.createNewUserAsync(_NewUser);
+                            gEmailService.SendEmail(_NewUser.Email, "Notificación de Nuevo Registro", lEmailBodyContent);
+                            return "Usuario registrado correctamente";
+                        }
+                        else
                         {
-                            UserName = _NewUser.UserName,
-                            IPAddress = pNewUser.IpAddress,
-                            Country = lLocationDetails.country_name,
-                            State = lLocationDetails.state_prov,
-                            City = lLocationDetails.city,
-                            RegisterDate = DateTime.Now.ToString(),
-                            TimeZoneName = lLocationDetails.TimeZone.Name,
-                            TimeZoneCurrentTime = lLocationDetails.TimeZone.CurrentTime
-                        };
-                        string lEmailBodyContent = gEmailContentService.GetRegisterEmailBodyContent(lModel);
-                        await gUserRepo.createNewUserAsync(_NewUser);
-                        gEmailService.SendEmail(_NewUser.Email, "Notificación de Nuevo Registro", lEmailBodyContent);
-                        return "Usuario registrado correctamente";
+                            return "Las contraseñas no coinciden";
+                        }
+
                     }
                     else
                     {
-                        return "Las contraseñas no coinciden";
+                        return "Correo ya registrado en el sistema";
                     }
-
                 }
                 else
                 {
-                    return "Correo ya registrado en el sistema";
+                    return "Nombre de usuario ya registrado en el sistema";
                 }
             }
             catch (Exception lEx)
